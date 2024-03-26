@@ -1,0 +1,67 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Price {
+  id             Int       @id @default(autoincrement())
+  date           DateTime
+  basePrice      Float
+  shelfPrice     Float
+  promotedPrice  Float
+  onPromotion    Boolean
+  product        Product   @relation(fields: [productId], references: [id])
+  productId      Int
+  retailer       Retailer  @relation(fields: [retailerId], references: [id])
+  retailerId     Int
+  promotion      Promotion? @relation(fields: [promotionId], references: [id])
+  promotionId    Int?
+}
+
+model Promotion {
+  id          Int      @id @default(autoincrement())
+  description String   @unique
+  prices      Price[]
+}
+
+model Retailer {
+  id      Int      @id @default(autoincrement())
+  name    String   @unique
+  prices  Price[]
+}
+
+model Product {
+  id              Int           @id @default(autoincrement())
+  ean             String        @unique
+  brand           Brand         @relation(fields: [brandId], references: [id])
+  brandId         Int
+  productTitle    String
+  image           String
+  manufacturer    Manufacturer  @relation(fields: [manufacturerId], references: [id])
+  manufacturerId  Int
+  category        Category      @relation(fields: [categoryId], references: [id])
+  categoryId      Int
+  prices          Price[]
+}
+
+model Manufacturer {
+  id            Int        @id @default(autoincrement())
+  name          String     @unique
+  products      Product[]
+}
+
+model Category {
+  id            Int        @id @default(autoincrement())
+  name          String     @unique
+  products      Product[]
+}
+
+model Brand {
+  id            Int        @id @default(autoincrement())
+  name          String     @unique
+  products      Product[]
+}
