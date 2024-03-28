@@ -11,11 +11,4 @@ router.get("/", category_data);
 router.get("/", brand_data);
 
 
-// router.post("/", registerCustomer);
-// Price
-// Retailer
-// Promotion
-// Product
-// Manufacturer
-// category
-// Brand
+
