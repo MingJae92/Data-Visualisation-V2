@@ -1,6 +1,6 @@
-import  parse  from "csv-parse";
-import  createReadStream  from "fs";
-import  PrismaClient  from "@prisma/client";
+import { parse } from "csv-parse";
+import { createReadStream}  from "fs";
+import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
 db.$connect();
@@ -132,3 +132,4 @@ createReadStream("data/data.csv")
     console.log("Database successfully processed");
     db.$disconnect();
   });
+console.log(data)
