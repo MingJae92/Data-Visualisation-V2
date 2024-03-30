@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  # web:
+  #   build: .
+  #   ports:
+  #     - "5000:5000"
+  #   volumes:
+  #     - .:/code
+  #   depends_on:
+  #     - db
+  local_pgdata:
+    image: postgres:latest
+    container_name: local_pgdb
+    profiles: ["db"]
+    restart: always
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - local_pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
+    profiles: ["db"]
+    container_name: pgadmin4_container
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: hello@hello.com
+      PGADMIN_DEFAULT_PASSWORD: hello
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+
+volumes:
+  local_pgdata:
+  pgadmin-data:
