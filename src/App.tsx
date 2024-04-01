@@ -1,13 +1,11 @@
-import Homepage from "./component/Homepage";
+import BarChart from "./component/BarChart";
 
- function App() {
+function App() {
   return (
     <div>
-      <Homepage/>
-      </div>
-  )
+      <BarChart/>
+    </div>
+  );
 }
 
-
 export default App;
-

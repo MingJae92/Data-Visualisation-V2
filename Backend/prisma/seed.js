@@ -1,13 +1,29 @@
 import { parse } from "csv-parse";
-import { createReadStream}  from "fs";
+import { createReadStream } from "fs";
 import { PrismaClient } from "@prisma/client";
 
 const db = new PrismaClient();
+let rowNumber = 0; // Counter variable to keep track of the row number
+
 db.$connect();
 
-createReadStream("data/data.csv")
-  .pipe(parse({}))
+createReadStream("data.csv")
+  .pipe(parse({delimiter: ',',
+  relax_column_count: true, // Allow records with a different number of fields
+  skip_empty_lines: true,   // Skip empty lines
+  columns: true,           // Don't treat the first row as a header
+  quote: '"'  }))
   .on("data", async (row) => {
+    rowNumber++; // Increment the row number for each new row
+
+    console.log("Row data:", row); // Log row data for debugging
+
+    // Check if the row has the expected number of fields (13 fields)
+    if (row.length !== 13) {
+      console.error(`Invalid number of fields in row ${rowNumber}:`, row);
+      return; // Skip processing this row
+    }
+
     const [
       date,
       retailer,
@@ -24,64 +40,65 @@ createReadStream("data/data.csv")
       promoted_price,
     ] = row;
 
-    const { id: categoryId } = await db.category.upsert({
-      create: {
-        name: category,
-      },
-      where: {
-        name: category,
-      },
-      update: {
-        name: category,
-      },
-    });
-
-    const { id: manufacturerId } = await db.manufacturer.upsert({
-      create: {
-        name: manufacturer,
-      },
-      where: {
-        name: manufacturer,
-      },
-      update: {
-        name: manufacturer,
-      },
-    });
-
-    const { id: retailerId } = await db.retailer.upsert({
-      create: {
-        name: retailer,
-      },
-      where: {
-        name: retailer,
-      },
-      update: {
-        name: retailer,
-      },
-    });
-
-    const { id: productId } = await db.product.upsert({
-      create: {
-        ean,
-        brand,
-        productTitle: product_title,
-        image,
-        manufacturerId,
-        categoryId,
-      },
-      where: {
-        ean,
-      },
-      update: {
-        ean,
-        brand,
-        productTitle: product_title,
-        image,
-        manufacturerId,
-        categoryId,
-      },
-    });
     try {
+      const { id: categoryId } = await db.category.upsert({
+        create: {
+          name: category,
+        },
+        where: {
+          name: category,
+        },
+        update: {
+          name: category,
+        },
+      });
+
+      const { id: manufacturerId } = await db.manufacturer.upsert({
+        create: {
+          name: manufacturer,
+        },
+        where: {
+          name: manufacturer,
+        },
+        update: {
+          name: manufacturer,
+        },
+      });
+
+      const { id: retailerId } = await db.retailer.upsert({
+        create: {
+          name: retailer,
+        },
+        where: {
+          name: retailer,
+        },
+        update: {
+          name: retailer,
+        },
+      });
+
+      const { id: productId } = await db.product.upsert({
+        create: {
+          ean,
+          brand,
+          productTitle: product_title,
+          image,
+          manufacturerId,
+          categoryId,
+        },
+        where: {
+          ean,
+        },
+        update: {
+          ean,
+          brand,
+          productTitle: product_title,
+          image,
+          manufacturerId,
+          categoryId,
+        },
+      });
+
       if (on_promotion === "TRUE") {
         const { id: promotionId } = await db.promotion.upsert({
           create: {
@@ -121,8 +138,8 @@ createReadStream("data/data.csv")
         });
       }
     } catch (error) {
-      console.log("Error on row: ", row);
-      console.log(error);
+      console.error(`Error processing row ${rowNumber}:`, row);
+      console.error(error);
     }
   })
   .on("end", () => {
@@ -132,4 +149,3 @@ createReadStream("data/data.csv")
     console.log("Database successfully processed");
     db.$disconnect();
   });
-console.log(data)
