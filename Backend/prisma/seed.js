@@ -8,11 +8,15 @@ let rowNumber = 0; // Counter variable to keep track of the row number
 db.$connect();
 
 createReadStream("data.csv")
-  .pipe(parse({delimiter: ',',
-  relax_column_count: true, // Allow records with a different number of fields
-  skip_empty_lines: true,   // Skip empty lines
-  columns: true,           // Don't treat the first row as a header
-  quote: '"'  }))
+  .pipe(
+    parse({
+      delimiter: ",",
+      relax_column_count: true, // Allow records with a different number of fields
+      skip_empty_lines: true, // Skip empty lines
+      columns: true, // Don't treat the first row as a header
+      quote: '"',
+    })
+  )
   .on("data", async (row) => {
     rowNumber++; // Increment the row number for each new row
 
@@ -24,7 +28,7 @@ createReadStream("data.csv")
       return; // Skip processing this row
     }
 
-    const [
+    const {
       date,
       retailer,
       ean,
@@ -38,7 +42,7 @@ createReadStream("data.csv")
       base_price,
       shelf_price,
       promoted_price,
-    ] = row;
+    } = row;
 
     try {
       const { id: categoryId } = await db.category.upsert({
@@ -99,7 +103,9 @@ createReadStream("data.csv")
         },
       });
 
-      if (on_promotion === "TRUE") {
+      const isOnPromotion = on_promotion.toUpperCase() === "TRUE";
+
+      if (isOnPromotion) {
         const { id: promotionId } = await db.promotion.upsert({
           create: {
             description: promotion_description,
@@ -120,7 +126,7 @@ createReadStream("data.csv")
             promotedPrice: parseFloat(promoted_price),
             retailerId,
             productId,
-            onPromotion: true,
+            onPromotion: isOnPromotion,
             promotionId,
           },
         });
@@ -133,7 +139,7 @@ createReadStream("data.csv")
             promotedPrice: parseFloat(promoted_price),
             retailerId,
             productId,
-            onPromotion: false,
+            onPromotion: isOnPromotion,
           },
         });
       }
