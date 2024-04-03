@@ -1,7 +1,6 @@
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-
 }
 
 generator client {
@@ -9,60 +8,53 @@ generator client {
 }
 
 model Price {
-  id             Int       @id @default(autoincrement())
+  id             Int        @id @default(autoincrement())
   date           DateTime
-  basePrice      Float
-  shelfPrice     Float
-  promotedPrice  Float
-  onPromotion    Boolean
-  product        Product   @relation(fields: [productId], references: [id])
-  productId      Int
-  retailer       Retailer  @relation(fields: [retailerId], references: [id])
-  retailerId     Int
-  promotion      Promotion? @relation(fields: [promotionId], references: [id])
-  promotionId    Int?
+  base_price     Float
+  shelf_price    Float
+  promoted_price Float
+  on_promotion   Boolean
+  product_id     Int
+  product        Product    @relation(fields: [product_id], references: [id])
+  retailer_id    Int
+  retailer       Retailer   @relation(fields: [retailer_id], references: [id])
+  promotion_id   Int?
+  promotion      Promotion? @relation(fields: [promotion_id], references: [id])
 }
 
 model Promotion {
-  id          Int      @id @default(autoincrement())
-  description String   @unique
-  prices      Price[]
+  id          Int     @id @default(autoincrement())
+  description String  @unique
+  Price       Price[]
 }
 
 model Retailer {
-  id      Int      @id @default(autoincrement())
-  name    String   @unique
-  prices  Price[]
+  id    Int     @id @default(autoincrement())
+  name  String  @unique
+  Price Price[]
 }
 
 model Product {
-  id              Int           @id @default(autoincrement())
-  ean             String        @unique
-  brand           Brand         @relation(fields: [brandId], references: [id])
-  brandId         Int
-  productTitle    String
+  id              Int          @id @default(autoincrement())
+  ean             String       @unique
+  brand           String
+  product_title   String
   image           String
-  manufacturer    Manufacturer  @relation(fields: [manufacturerId], references: [id])
-  manufacturerId  Int
-  category        Category      @relation(fields: [categoryId], references: [id])
-  categoryId      Int
-  prices          Price[]
+  manufacturer_id Int
+  manufacturer    Manufacturer @relation(fields: [manufacturer_id], references: [id])
+  category_id     Int
+  category        Category     @relation(fields: [category_id], references: [id])
+  Price           Price[]
 }
 
 model Manufacturer {
-  id            Int        @id @default(autoincrement())
-  name          String     @unique
-  products      Product[]
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  Product Product[]
 }
 
 model Category {
-  id            Int        @id @default(autoincrement())
-  name          String     @unique
-  products      Product[]
-}
-
-model Brand {
-  id            Int        @id @default(autoincrement())
-  name          String     @unique
-  products      Product[]
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  Product Product[]
 }

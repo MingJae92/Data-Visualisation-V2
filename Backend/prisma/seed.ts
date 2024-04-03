@@ -9,13 +9,7 @@ db.$connect();
 
 createReadStream("data.csv")
   .pipe(
-    parse({
-      delimiter: ",",
-      relax_column_count: true, // Allow records with a different number of fields
-      skip_empty_lines: true, // Skip empty lines
-      columns: true, // Don't treat the first row as a header
-      quote: '"',
-    })
+    parse({})
   )
   .on("data", async (row) => {
     rowNumber++; // Increment the row number for each new row
@@ -85,7 +79,7 @@ createReadStream("data.csv")
         create: {
           ean,
           brand,
-          productTitle: product_title,
+          productTitle
           image,
           manufacturerId,
           categoryId,
